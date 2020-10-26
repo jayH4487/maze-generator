@@ -1,0 +1,44 @@
+* {
+    box-sizing: border-box;
+}
+body {
+    margin: 0;
+    height: 100vh;
+    display: grid;
+    place-items: center;
+}
+
+.container {
+    width: 400px;
+    height: 400px;
+    outline: 1px solid black;
+    display: grid;
+    /* grid-auto-flow: column dense; */
+    grid-template-columns: repeat(10, 1fr);
+}
+
+.cell {
+    width: 40px;
+    height: 40px;
+    /* outline: 1px solid black; */
+    position: relative;
+}
+
+.forward::after,
+.backward::after {
+    content: "";
+    width: 56px;
+    height: 1px;
+    background: black;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+}
+
+.forward::after {
+    transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.backward::after {
+    transform: translate(-50%, -50%) rotate(45deg);
+}
