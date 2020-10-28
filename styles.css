@@ -8,26 +8,31 @@ body {
     place-items: center;
 }
 
-.container {
+.container-basic,
+.container-dfs {
     width: 400px;
     height: 400px;
     outline: 1px solid black;
     display: grid;
-    /* grid-auto-flow: column dense; */
     grid-template-columns: repeat(10, 1fr);
+    margin-bottom: 2em;
 }
 
-.cell {
+.cell-basic,
+.cell-dfs {
     width: 40px;
     height: 40px;
-    /* outline: 1px solid black; */
     position: relative;
+}
+
+.cell-dfs {
+    border: 1px solid black;
 }
 
 .forward::after,
 .backward::after {
     content: "";
-    width: 56px;
+    width: 56.57px;
     height: 1px;
     background: black;
     position: absolute;
@@ -41,4 +46,20 @@ body {
 
 .backward::after {
     transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.left {
+    border-left: none;
+}
+
+.right {
+    border-right: none;
+}
+
+.top {
+    border-top: none;
+}
+
+.bottom {
+    border-bottom: none;
 }
