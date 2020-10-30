@@ -37,21 +37,39 @@ drawDfsCells(dfsCells)
 
 const path = [0, 1, 11]
 
+const randomizeArray = (arr) => {
+    if (arr.length === 0) {
+        return []
+    }
+    const randomIndex = Math.floor(Math.random() * arr.length)
+    return [arr[randomIndex], ...randomizeArray([...arr.slice(0, randomIndex), ...arr.slice(randomIndex + 1)])]
 
-const findFrontiers = (cell) => {
+}
+
+const getSuccessors = (cell) => {
     const up = cell - 10 < 0 ? -1 : cell - 10
     const down = cell + 10 > 100 ? -1 : cell + 10
     const left = Math.floor((cell - 1) / 10) === Math.floor((cell) / 10) ? cell - 1 : -1
     const right = Math.floor((cell + 1) / 10) === Math.floor((cell) / 10) ? cell + 1 : -1
 
-    return [up, down, left, right].filter(el => el > -1 && el < 100)
+    const validSuccessors = [down, left, right, up].filter(el => el > -1 && el < 100)
+    return randomizeArray(validSuccessors)
 }
 
-const buildPath = (currentCell, endCell, frontier, explored=new Set(), path=[]) => {
-    if (current === end) {
+const buildPath = (currentCell, endCell, frontier=[], explored=new Set(), path=[currentCell]) => {
+    if (currentCell === endCell) {
         return path
     }
-    const newFrontiers = findFrontiers(currentCell).filter(cell => !explored.has(cell))
+    const successors = getSuccessors(currentCell)
+    
+
+    const [updatedCurrentCell, ...restFrontier] = [...successors, ...frontier].filter(cell => !explored.has(cell))
+    const updatedExplored = explored.add(updatedCurrentCell)
+    const updatedPath = successors.length === 0
+        ? [...path, path[path.length - 2], updatedCurrentCell]
+        : [...path, updatedCurrentCell]
+
+    return buildPath(updatedCurrentCell, endCell, restFrontier, updatedExplored, updatedPath)
 
 }
 
@@ -88,5 +106,5 @@ const removeWalls = ([current, next, ...rest]) => {
 }
 
 
-removeWalls(path)
+removeWalls(buildPath(0, 99))
 drawDfsCells(dfsCells)
