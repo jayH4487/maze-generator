@@ -35,7 +35,7 @@ const drawDfsCells = (dfsCells) => {
 drawDfsCells(dfsCells)
 
 
-const path = [0, 1, 11]
+const path = [[0, 0], [0, 1], [1, 11]]
 
 const randomizeArray = (arr) => {
     if (arr.length === 0) {
@@ -53,27 +53,30 @@ const getSuccessors = (cell) => {
     const right = Math.floor((cell + 1) / 10) === Math.floor((cell) / 10) ? cell + 1 : -1
 
     const validSuccessors = [down, left, right, up].filter(el => el > -1 && el < 100)
-    return randomizeArray(validSuccessors)
+    return randomizeArray(validSuccessors.map(el => [cell, el]))
 }
 
-const buildPath = (currentCell, endCell, frontier=[], explored=new Set(), path=[currentCell]) => {
-    if (currentCell === endCell) {
+const buildPath = (currentCell, endCell, frontier=[], explored=new Set([0]), path=[[currentCell, currentCell]]) => {
+
+    if (currentCell[1] === endCell) {
         return path
     }
-    const successors = getSuccessors(currentCell)
+    const successors = getSuccessors(currentCell[1])
     
 
-    const [updatedCurrentCell, ...restFrontier] = [...successors, ...frontier].filter(cell => !explored.has(cell))
-    const updatedExplored = explored.add(updatedCurrentCell)
-    const updatedPath = successors.length === 0
-        ? [...path, path[path.length - 2], updatedCurrentCell]
-        : [...path, updatedCurrentCell]
+    const [updatedCurrentCell, ...restFrontier] = [...successors, ...frontier].filter(([_, cell]) => !explored.has(cell))
+    const updatedExplored = explored.add(updatedCurrentCell[1])
+    const updatedPath = [...path, updatedCurrentCell]
 
     return buildPath(updatedCurrentCell, endCell, restFrontier, updatedExplored, updatedPath)
 
 }
 
-const removeWall = (current, next) => {
+const removeWalls = ([currentPath, ...restPath]) => {
+    if (currentPath === undefined) {
+        return
+    }
+    const [current, next] = currentPath
     const isLeftToRight = Math.floor(current / 10) === Math.floor(next / 10) && current < next
     const isRightToLeft = Math.floor(current / 10) === Math.floor(next / 10) && current > next
     const isTopToBottom = (current % 10) === (next % 10) && current < next
@@ -95,16 +98,9 @@ const removeWall = (current, next) => {
         dfsCells[current] = [...dfsCells[current], "top"]
         dfsCells[next] = [...dfsCells[next], "bottom"]
     }
-}
-
-const removeWalls = ([current, next, ...rest]) => {
-    if (next === undefined) {
-        return
-    }
-    removeWall(current, next)
-    return removeWalls([next, ...rest])
+    return removeWalls(restPath)
 }
 
 
-removeWalls(buildPath(0, 99))
+removeWalls(buildPath([0, 0], 99))
 drawDfsCells(dfsCells)
