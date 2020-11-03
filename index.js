@@ -1,41 +1,22 @@
 const getElement = (selector) => document.querySelector(selector)
 
-const $containerBasic = getElement(".container-basic")
-const $containerDfs = getElement(".container-dfs")
+const $container = getElement(".container")
 
 const range = (start, end) => Array.from({length: end - start}, (_, i) => start + i)
 
-const drawCells = (container, cells) => {
-    container.innerHTML = cells.join("")
-}
 
-const basicCells = range(0, 100).map(_ => {
-    const direction = Math.round(Math.random()) ? "forward" : "backward"
-    return `<div class="cell-basic ${direction}"></div>`
-})
+const cells = range(0, 100).map(_ => [])
 
-drawCells($containerBasic, basicCells)
-
-
-// DFS MAZE
-
-const dfsCells = range(0, 100).map(_ => {
-    return []
-    return `<div class="cell-dfs"></div>`
-})
-
-const drawDfsCells = (dfsCells) => {
-    const html = dfsCells.map((directions) => {
-        return `<div class="cell-dfs ${directions.join(" ")}"></div>`
+const drawCells = (cells) => {
+    const html = cells.map((directions) => {
+        return `<div class="cell ${directions.join(" ")}"></div>`
     }).join("")
     
-    $containerDfs.innerHTML = html
+    $container.innerHTML = html
 }
 
-drawDfsCells(dfsCells)
+drawCells(cells)
 
-
-const path = [[0, 0], [0, 1], [1, 11]]
 
 const randomizeArray = (arr) => {
     if (arr.length === 0) {
@@ -56,9 +37,14 @@ const getSuccessors = (cell) => {
     return randomizeArray(validSuccessors.map(el => [cell, el]))
 }
 
-const buildPath = (currentCell, endCell, frontier=[], explored=new Set([0]), path=[[currentCell, currentCell]]) => {
+const buildPath = (
+    currentCell,
+    endCell, frontier=[getSuccessors(currentCell[1])],
+    explored=new Set([0]),
+    path=[[currentCell, currentCell]]
+) => {
 
-    if (currentCell[1] === endCell) {
+    if (frontier.length === 0) {
         return path
     }
     const successors = getSuccessors(currentCell[1])
@@ -83,24 +69,24 @@ const removeWalls = ([currentPath, ...restPath]) => {
     const isBottomToTop = (current % 10) === (next % 10) && current > next
 
     if (isLeftToRight) {
-        dfsCells[current] = [...dfsCells[current], "right"]
-        dfsCells[next] = [...dfsCells[next], "left"]
+        cells[current] = [...cells[current], "right"]
+        cells[next] = [...cells[next], "left"]
     }
     if (isRightToLeft) {
-        dfsCells[current] = [...dfsCells[current], "left"]
-        dfsCells[next] = [...dfsCells[next], "right"]
+        cells[current] = [...cells[current], "left"]
+        cells[next] = [...cells[next], "right"]
     }
     if (isTopToBottom) {
-        dfsCells[current] = [...dfsCells[current], "bottom"]
-        dfsCells[next] = [...dfsCells[next], "top"]
+        cells[current] = [...cells[current], "bottom"]
+        cells[next] = [...cells[next], "top"]
     }
     if (isBottomToTop) {
-        dfsCells[current] = [...dfsCells[current], "top"]
-        dfsCells[next] = [...dfsCells[next], "bottom"]
+        cells[current] = [...cells[current], "top"]
+        cells[next] = [...cells[next], "bottom"]
     }
     return removeWalls(restPath)
 }
 
 
 removeWalls(buildPath([0, 0], 99))
-drawDfsCells(dfsCells)
+drawCells(cells)
