@@ -1,11 +1,9 @@
 const getElement = (selector) => document.querySelector(selector)
 
 const $container = getElement(".container")
+const $randomizeMaze = getElement(".btn-randomize")
 
 const range = (start, end) => Array.from({length: end - start}, (_, i) => start + i)
-
-
-const cells = range(0, 100).map(_ => [])
 
 const drawCells = (cells) => {
     const html = cells.map((directions) => {
@@ -14,9 +12,6 @@ const drawCells = (cells) => {
     
     $container.innerHTML = html
 }
-
-drawCells(cells)
-
 
 const randomizeArray = (arr) => {
     if (arr.length === 0) {
@@ -39,7 +34,7 @@ const getSuccessors = (cell) => {
 
 const buildPath = (
     currentCell,
-    endCell, frontier=[getSuccessors(currentCell[1])],
+    frontier=[getSuccessors(currentCell[1])],
     explored=new Set([0]),
     path=[[currentCell, currentCell]]
 ) => {
@@ -54,13 +49,13 @@ const buildPath = (
     const updatedExplored = explored.add(updatedCurrentCell[1])
     const updatedPath = [...path, updatedCurrentCell]
 
-    return buildPath(updatedCurrentCell, endCell, restFrontier, updatedExplored, updatedPath)
+    return buildPath(updatedCurrentCell, restFrontier, updatedExplored, updatedPath)
 
 }
 
-const removeWalls = ([currentPath, ...restPath]) => {
+const removeWalls = ([currentPath, ...restPath], cells) => {
     if (currentPath === undefined) {
-        return
+        return cells
     }
     const [current, next] = currentPath
     const isLeftToRight = Math.floor(current / 10) === Math.floor(next / 10) && current < next
@@ -84,9 +79,17 @@ const removeWalls = ([currentPath, ...restPath]) => {
         cells[current] = [...cells[current], "top"]
         cells[next] = [...cells[next], "bottom"]
     }
-    return removeWalls(restPath)
+    return removeWalls(restPath, cells)
 }
 
 
-removeWalls(buildPath([0, 0], 99))
-drawCells(cells)
+const drawMaze = () => {
+    const cells = range(0, 100).map(_ => [])
+    const path = buildPath([0, 0])
+    removeWalls(path, cells)
+    drawCells(cells)
+}
+
+drawMaze()
+
+$randomizeMaze.addEventListener("click", drawMaze)
