@@ -34,20 +34,21 @@ const getSuccessors = (cell) => {
 
 const buildPath = (
     currentCell,
-    frontier=[getSuccessors(currentCell[1])],
+    frontier=getSuccessors(currentCell[1]),
     explored=new Set([0]),
-    path=[[currentCell, currentCell]]
+    path=[currentCell]
 ) => {
-
     if (frontier.length === 0) {
         return path
     }
     const successors = getSuccessors(currentCell[1])
-    
 
-    const [updatedCurrentCell, ...restFrontier] = [...successors, ...frontier].filter(([_, cell]) => !explored.has(cell))
-    const updatedExplored = explored.add(updatedCurrentCell[1])
-    const updatedPath = [...path, updatedCurrentCell]
+    const [
+        updatedCurrentCell,
+        ...restFrontier
+    ] = [...successors, ...frontier].filter(([_, cell]) => !explored.has(cell))
+    const updatedExplored = explored.add((updatedCurrentCell || [0, 0])[1])
+    const updatedPath = [...path, updatedCurrentCell || [0, 0]]
 
     return buildPath(updatedCurrentCell, restFrontier, updatedExplored, updatedPath)
 
@@ -58,36 +59,38 @@ const removeWalls = ([currentPath, ...restPath], cells) => {
         return cells
     }
     const [current, next] = currentPath
-    const isLeftToRight = Math.floor(current / 10) === Math.floor(next / 10) && current < next
-    const isRightToLeft = Math.floor(current / 10) === Math.floor(next / 10) && current > next
-    const isTopToBottom = (current % 10) === (next % 10) && current < next
-    const isBottomToTop = (current % 10) === (next % 10) && current > next
+    const walls = new Map([
+        [1, "right"],
+        [-1, "left"],
+        [10, "bottom"],
+        [-10, "top"]
+    ])
 
-    if (isLeftToRight) {
-        cells[current] = [...cells[current], "right"]
-        cells[next] = [...cells[next], "left"]
-    }
-    if (isRightToLeft) {
-        cells[current] = [...cells[current], "left"]
-        cells[next] = [...cells[next], "right"]
-    }
-    if (isTopToBottom) {
-        cells[current] = [...cells[current], "bottom"]
-        cells[next] = [...cells[next], "top"]
-    }
-    if (isBottomToTop) {
-        cells[current] = [...cells[current], "top"]
-        cells[next] = [...cells[next], "bottom"]
-    }
-    return removeWalls(restPath, cells)
+    const currentWallToRemove = walls.get(next - current)
+    const nextWallToRemove = walls.get(current - next)
+
+    //cells[current] = [...cells[current], currentWallToRemove]
+    //cells[next] = [...cells[next], nextWallToRemove]
+
+    const updatedCells = cells.map((cell, i) => {
+        if (i === current) {
+            return [...cell, currentWallToRemove]
+        }
+        if (i === next) {
+            return [...cell, nextWallToRemove]
+        }
+        return cell
+    })
+
+    return removeWalls(restPath, updatedCells)
 }
 
 
 const drawMaze = () => {
     const cells = range(0, 100).map(_ => [])
     const path = buildPath([0, 0])
-    removeWalls(path, cells)
-    drawCells(cells)
+    const updatedCells = removeWalls(path, cells)
+    drawCells(updatedCells)
 }
 
 drawMaze()
