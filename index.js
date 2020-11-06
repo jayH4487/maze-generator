@@ -1,7 +1,7 @@
 const getElement = (selector) => document.querySelector(selector)
 
 const $container = getElement(".container")
-const $cellSize = getElement(".cell-size")
+const $cellSize = getElement(".select-cell-size")
 const $randomizeMaze = getElement(".btn")
 
 const range = (start, end) => Array.from({length: end - start}, (_, i) => start + i)
