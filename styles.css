@@ -7,7 +7,7 @@ body {
     justify-items: center;
 }
 
-.btn-randomize {
+.btn {
     cursor: pointer;
     font-size: 1.5rem;
     margin-bottom: 1em;
@@ -18,13 +18,13 @@ body {
     width: 400px;
     height: 400px;
     outline: 1px solid black;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+    /* display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); */
+    display: flex;
+    flex-wrap: wrap;
 }
 
 .cell {
-    width: 40px;
-    height: 40px;
     position: relative;
     border: 1px solid black;
 }
